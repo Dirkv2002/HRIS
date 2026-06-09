@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Communicare HRIS — Recruitment Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       AUTH SCREEN
+  ═══════════════════════════════════════ -->
+  <div id="authScreen" class="auth-screen">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div class="auth-logo-icon"><i class="ti ti-briefcase"></i></div>
+        <div>
+          <h1>Communicare HRIS</h1>
+          <p>Recruitment Portal</p>
+        </div>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Sign In</button>
+        <button class="auth-tab" id="tabSignup" onclick="switchAuthTab('signup')">Create Account</button>
+      </div>
+
+      <div id="authMessage" class="auth-message hidden"></div>
+
+      <!-- LOGIN -->
+      <form id="loginForm" class="auth-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="loginEmail" placeholder="you@communicare.co.za" required/>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter your password" required/>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full" id="loginBtn">
+          <i class="ti ti-login"></i> Sign In
+        </button>
+        <div class="auth-footer-link">
+          <a href="#" onclick="showForgotPassword()">Forgot your password?</a>
+        </div>
+      </form>
+
+      <!-- SIGNUP -->
+      <form id="signupForm" class="auth-form hidden" onsubmit="handleSignup(event)">
+        <div class="grid-2">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" id="signupFirst" placeholder="Thabo" required/>
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" id="signupLast" placeholder="Nkosi" required/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="signupEmail" placeholder="you@communicare.co.za" required/>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="signupPassword" placeholder="Min. 6 characters" required/>
+        </div>
+        <div class="form-group">
+          <label>Role</label>
+          <select id="signupRole">
+            <option value="candidate">Candidate</option>
+            <option value="admin">HR Administrator</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full" id="signupBtn">
+          <i class="ti ti-user-plus"></i> Create Account
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       MAIN APP
+  ═══════════════════════════════════════ -->
+  <div id="appScreen" class="app-screen hidden">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="logo">
+        <div class="logo-mark">
+          <div class="logo-icon"><i class="ti ti-briefcase"></i></div>
+          <div>
+            <h2>Communicare</h2>
+          </div>
+        </div>
+        <p class="logo-sub">HRIS Recruitment Portal</p>
+      </div>
+
+      <nav class="nav">
+        <div class="nav-section">Main</div>
+        <div class="nav-item active" id="nav-dashboard" onclick="showTab('dashboard', this)">
+          <i class="ti ti-layout-dashboard"></i> Dashboard
+        </div>
+
+        <div class="nav-section">Recruitment</div>
+        <div class="nav-item" id="nav-apply" onclick="showTab('apply', this)">
+          <i class="ti ti-send"></i> Apply
+        </div>
+        <div class="nav-item" id="nav-screening" onclick="showTab('screening', this)">
+          <i class="ti ti-clipboard-list"></i> Screening
+        </div>
+        <div class="nav-item" id="nav-competency" onclick="showTab('competency', this)">
+          <i class="ti ti-folder-open"></i> Competency
+        </div>
+        <div class="nav-item" id="nav-assessments" onclick="showTab('assessments', this)">
+          <i class="ti ti-brain"></i> Assessments
+        </div>
+        <div class="nav-item" id="nav-progress" onclick="showTab('progress', this)">
+          <i class="ti ti-timeline"></i> Progress
+        </div>
+        <div class="nav-item" id="nav-bookings" onclick="showTab('bookings', this)">
+          <i class="ti ti-calendar-event"></i> Bookings
+        </div>
+
+        <div class="nav-section">Insights</div>
+        <div class="nav-item" id="nav-stats" onclick="showTab('stats', this)">
+          <i class="ti ti-chart-bar"></i> Stats
+        </div>
+      </nav>
+
+      <div class="user-panel">
+        <div class="user-row">
+          <div class="user-avatar-sm" id="sidebarAvatarText">?</div>
+          <div>
+            <div class="user-name" id="sidebarName">Loading...</div>
+            <div class="user-email" id="sidebarEmail">—</div>
+          </div>
+        </div>
+        <span class="role-badge candidate" id="roleBadge">CANDIDATE</span>
+        <button class="btn btn-logout btn-full" style="margin-top:10px;" onclick="handleLogout()">
+          <i class="ti ti-logout"></i> Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+
+      <!-- ══════════════════════════════
+           DASHBOARD TAB
+      ══════════════════════════════ -->
+      <section id="tab-dashboard" class="tab-content active">
+
+        <!-- Accent bar -->
+        <div class="tab-accent-bar"></div>
+
+        <div class="profile-header">
+          <div class="avatar-upload" onclick="document.getElementById('avatarInput').click()" title="Upload profile photo">
+            <div class="avatar-circle" id="avatarCircle">?</div>
+            <div class="avatar-overlay"><i class="ti ti-camera"></i></div>
+            <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="uploadAvatar(event)"/>
+          </div>
+          <div class="profile-info" style="flex:1">
+            <h2 id="profileName">Loading...</h2>
+            <div class="sub" id="profileSub">—</div>
+            <div id="dashStatusBadge" class="status-badge screening">
+              <i class="ti ti-circle-dot"></i>&nbsp;Screening
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div class="info-label">Application Status</div>
+            <div style="font-size:14px;font-weight:600;color:var(--brand)" id="dashStatusText">In Screening</div>
+          </div>
+        </div>
+
+        <!-- Dashboard cards grid — scrollable -->
+        <div class="dashboard-grid">
+
+          <!-- Personal Information -->
+          <div class="card">
+            <div class="card-title accent-blue">
+              <i class="ti ti-user"></i> Personal Information
+            </div>
+            <div class="info-row"><span class="key">Full Name</span><span class="val" id="infoName">—</span></div>
+            <div class="info-row"><span class="key">Email</span><span class="val" id="infoEmail">—</span></div>
+            <div class="info-row"><span class="key">Phone</span><span class="val" id="infoPhone">—</span></div>
+            <div class="info-row"><span class="key">ID Number</span><span class="val" id="infoId">—</span></div>
+            <div class="info-row"><span class="key">Location</span><span class="val" id="infoLocation">—</span></div>
+            <div class="info-row"><span class="key">Nationality</span><span class="val" id="infoNationality">—</span></div>
+            <div style="margin-top:14px">
+              <button class="btn btn-secondary" onclick="toggleEditPersonal()">
+                <i class="ti ti-edit"></i> Edit Details
+              </button>
+            </div>
+            <div id="editPersonalForm" class="hidden" style="margin-top:16px">
+              <div class="grid-2">
+                <div class="form-group"><label>Phone</label><input type="text" id="editPhone" placeholder="+27 82 000 0000"/></div>
+                <div class="form-group"><label>ID Number</label><input type="text" id="editIdNum" placeholder="ID Number"/></div>
+                <div class="form-group"><label>Location</label><input type="text" id="editLocation" placeholder="City, Province"/></div>
+                <div class="form-group"><label>Nationality</label><input type="text" id="editNationality" placeholder="e.g. South African"/></div>
+              </div>
+              <button class="btn btn-primary" onclick="savePersonalInfo()"><i class="ti ti-check"></i> Save</button>
+              <button class="btn btn-secondary" onclick="toggleEditPersonal()" style="margin-left:8px">Cancel</button>
+            </div>
+          </div>
+
+          <!-- Job Information -->
+          <div class="card">
+            <div class="card-title accent-blue">
+              <i class="ti ti-briefcase"></i> Job Information
+            </div>
+            <div class="info-row"><span class="key">Job Title</span><span class="val" id="infoJobTitle">—</span></div>
+            <div class="info-row"><span class="key">Department</span><span class="val" id="infoJobDept">—</span></div>
+            <div class="info-row"><span class="key">Reference No.</span><span class="val" id="infoJobRef">—</span></div>
+            <div class="info-row"><span class="key">Application Date</span><span class="val" id="infoJobDate">—</span></div>
+            <div style="margin-top:10px">
+              <div class="info-label" style="margin-bottom:6px">Job Description</div>
+              <div style="font-size:13px;color:var(--text-secondary);line-height:1.7" id="infoJobDesc">—</div>
+            </div>
+
+            <!-- Admin: edit job info -->
+            <div class="admin-only" style="margin-top:14px">
+              <button class="btn btn-secondary" onclick="toggleEditJob()">
+                <i class="ti ti-edit"></i> Edit Job Info
+              </button>
+              <div id="editJobForm" class="hidden" style="margin-top:16px">
+                <div class="grid-2">
+                  <div class="form-group"><label>Job Title</label><input type="text" id="editJobTitle" placeholder="e.g. Software Engineer"/></div>
+                  <div class="form-group"><label>Department</label>
+                    <select id="editJobDept">
+                      <option>Information Technology</option>
+                      <option>Human Capital</option>
+                      <option>Marketing and Communications</option>
+                      <option>Asset Management</option>
+                      <option>Finance</option>
+                      <option>Property Development and Investments</option>
+                      <option>Facilities Management</option>
+                    </select>
+                  </div>
+                  <div class="form-group"><label>Reference No.</label><input type="text" id="editJobRef" placeholder="e.g. IT-2025-042"/></div>
+                </div>
+                <div class="form-group"><label>Job Description</label><textarea id="editJobDesc" rows="3" placeholder="Describe the role..."></textarea></div>
+                <button class="btn btn-primary" onclick="saveJobInfo()"><i class="ti ti-check"></i> Save</button>
+                <button class="btn btn-secondary" onclick="toggleEditJob()" style="margin-left:8px">Cancel</button>
+              </div>
+            </div>
+
+            <!-- CV Upload -->
+            <div class="upload-zone" onclick="document.getElementById('cvInput').click()" style="margin-top:16px">
+              <i class="ti ti-file-cv"></i>
+              <p id="cvLabel">Drag & drop your CV or click to browse</p>
+              <span class="btn-upload">Browse File</span>
+              <input type="file" id="cvInput" accept=".pdf,.doc,.docx" style="display:none" onchange="uploadCV(event)"/>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════
+           APPLY TAB
+      ══════════════════════════════ -->
+      <section id="tab-apply" class="tab-content">
+        <div class="tab-accent-bar" style="background:var(--accent-purple)"></div>
+
+        <!-- CANDIDATE VIEW: Browse & apply to vacancies -->
+        <div class="candidate-only">
+          <div class="page-header">
+            <h1>Open Vacancies</h1>
+            <p>Browse and apply to available positions at Communicare</p>
+          </div>
+          <div id="vacancyList" class="vacancy-grid"></div>
+        </div>
+
+        <!-- ADMIN VIEW: Manage jobs, questions, lists -->
+        <div class="admin-only">
+          <div class="page-header flex-between">
+            <div>
+              <h1>Application Management</h1>
+              <p>Manage vacancies, screening questions and applicant lists</p>
+            </div>
+            <button class="btn btn-primary" onclick="openAddVacancyModal()">
+              <i class="ti ti-plus"></i> Add Vacancy
+            </button>
+          </div>
+
+          <div id="adminVacancyList"></div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════
+           SCREENING TAB
+      ══════════════════════════════ -->
+      <section id="tab-screening" class="tab-content">
+        <div class="tab-accent-bar" style="background:var(--accent-green)"></div>
+        <div class="page-header flex-between">
+          <div>
+            <h1>Screening Strategy</h1>
+            <p>Define the ideal candidate profile for this role</p>
+          </div>
+          <button class="btn btn-primary admin-only" onclick="saveScreening()">
+            <i class="ti ti-device-floppy"></i> Save Report
+          </button>
+        </div>
+
+        <div class="candidate-only">
+          <div class="notice">
+            <i class="ti ti-lock"></i>
+            <span>This section is managed by the hiring team. Your application has been received and is currently under review.</span>
+          </div>
+        </div>
+
+        <div class="admin-only">
+          <div class="card">
+            <div class="card-title"><i class="ti ti-forms"></i> Role Screening Survey</div>
+            <div class="grid-2">
+              <div class="form-group"><label>Job Title</label><input type="text" id="sc_title" placeholder="e.g. Software Engineer"/></div>
+              <div class="form-group">
+                <label>Department</label>
+                <select id="sc_dept">
+                  <option>Information Technology</option>
+                  <option>Human Capital</option>
+                  <option>Marketing and Communications</option>
+                  <option>Asset Management</option>
+                  <option>Finance</option>
+                  <option>Property Development and Investments</option>
+                  <option>Facilities Management</option>
+                </select>
+              </div>
+              <div class="form-group"><label>Required Qualifications</label><input type="text" id="sc_qual" placeholder="e.g. BSc Computer Science"/></div>
+              <div class="form-group"><label>Years of Experience</label><input type="text" id="sc_exp" placeholder="e.g. 3–5 years"/></div>
+              <div class="form-group"><label>Budget for Role</label><input type="text" id="sc_budget" placeholder="e.g. R45 000 – R60 000 pm"/></div>
+            </div>
+            <div class="form-group"><label>Job Description</label><textarea id="sc_jd" rows="4" placeholder="Describe the role responsibilities..."></textarea></div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Green Flags <span style="color:var(--success)">(one per line)</span></label>
+                <textarea id="sc_green" rows="5" placeholder="Strong portfolio&#10;Excellent communicator"></textarea>
+              </div>
+              <div class="form-group">
+                <label>Red Flags <span style="color:var(--danger)">(one per line)</span></label>
+                <textarea id="sc_red" rows="5" placeholder="Frequent unexplained gaps&#10;Unable to explain past work"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="screening-report hidden" id="screeningReport">
+            <div class="report-heading"><i class="ti ti-file-report"></i> Screening Report — Generated for HR</div>
+            <div class="grid-2" style="margin-bottom:16px">
+              <div>
+                <div class="report-label">Role</div>
+                <div style="font-size:16px;font-weight:600;color:var(--text-primary)" id="rpt_title"></div>
+                <div style="font-size:12px;color:var(--text-muted)" id="rpt_dept"></div>
+              </div>
+              <div>
+                <div class="report-label">Budget</div>
+                <div style="font-size:15px;font-weight:600;color:var(--success)" id="rpt_budget"></div>
+              </div>
+            </div>
+            <hr class="divider"/>
+            <div style="margin-bottom:12px">
+              <div class="report-label" style="margin-bottom:8px">Green Flags</div>
+              <div id="rpt_green"></div>
+            </div>
+            <div>
+              <div class="report-label" style="margin-bottom:8px">Red Flags</div>
+              <div id="rpt_red"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════
+           COMPETENCY TAB
+      ══════════════════════════════ -->
+      <section id="tab-competency" class="tab-content">
+        <div class="tab-accent-bar" style="background:var(--accent-yellow)"></div>
+        <div class="page-header flex-between">
+          <div>
+            <h1>Competency Framework</h1>
+            <p>Job frameworks, descriptions and uploaded documents by department</p>
+          </div>
+          <button class="btn btn-primary admin-only" onclick="openAddJobModal()">
+            <i class="ti ti-plus"></i> Add Job
+          </button>
+        </div>
+        <div id="deptList"></div>
+      </section>
+
+      <!-- ══════════════════════════════
+           ASSESSMENTS TAB
+      ══════════════════════════════ -->
+      <section id="tab-assessments" class="tab-content">
+        <div class="tab-accent-bar" style="background:var(--accent-purple)"></div>
+        <div class="page-header">
+          <h1>Assessments</h1>
+          <p>Complete or manage role-based assessments</p>
+        </div>
+
+        <!-- Candidate view -->
+        <div class="candidate-only">
+          <div class="card flex-between" style="margin-bottom:20px">
+            <div>
+              <div style="font-size:15px;font-weight:600" id="assessTitle">Loading assessment...</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Complete your assigned assessment below</div>
+            </div>
+            <div id="assessBadge" class="status-pill brand">Not Started</div>
+          </div>
+          <div id="questionsPanel"></div>
+        </div>
+
+        <!-- Admin view -->
+        <div class="admin-only">
+          <div class="card" style="margin-bottom:20px">
+            <div class="card-title"><i class="ti ti-upload"></i> Upload Assessment</div>
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">
+              Upload an HTML assessment file. Results will be captured under each candidate's profile.
+            </p>
+            <div class="upload-zone" onclick="document.getElementById('assessmentFileInput').click()">
+              <i class="ti ti-file-code"></i>
+              <p id="assessUploadLabel">Click to upload an HTML assessment file</p>
+              <span class="btn-upload">Browse File</span>
+              <input type="file" id="assessmentFileInput" accept=".html" style="display:none" onchange="uploadAssessmentFile(event)"/>
+            </div>
+          </div>
+
+          <!-- Uploaded assessments list -->
+          <div class="card">
+            <div class="card-title"><i class="ti ti-list"></i> Uploaded Assessments</div>
+            <div id="uploadedAssessmentsList">
+              <p style="font-size:13px;color:var(--text-muted)">No assessments uploaded yet.</p>
+            </div>
+          </div>
+
+          <!-- Results per candidate -->
+          <div class="card" style="margin-top:0">
+            <div class="card-title"><i class="ti ti-chart-bar"></i> Candidate Results</div>
+            <div id="adminResultsList">
+              <p style="font-size:13px;color:var(--text-muted)">Results will appear here once candidates complete assessments.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════
+           PROGRESS TAB
+      ══════════════════════════════ -->
+      <section id="tab-progress" class="tab-content">
+        <div class="tab-accent-bar" style="background:var(--accent-green)"></div>
+        <div class="page-header">
+          <h1>Application Progress</h1>
+          <p>Track your journey through the recruitment process</p>
+        </div>
+
+        <div class="card">
+          <div style="text-align:center;margin-bottom:12px">
+            <div class="report-label">Current Stage</div>
+            <div style="font-size:24px;font-weight:600;color:var(--brand);margin-top:6px" id="currentStageLabel">Reviewing</div>
+          </div>
+          <div class="progress-track">
+            <div class="progress-line">
+              <div class="progress-line-fill" id="progressFill" style="width:14%"></div>
+            </div>
+            <div class="progress-steps" id="progressSteps">
+              <div class="step-node">
+                <div class="step-circle done"><i class="ti ti-check"></i></div>
+                <div class="step-label done">Application Received</div>
+                <div class="step-date" id="stepDate0">—</div>
+              </div>
+              <div class="step-node">
+                <div class="step-circle current"><i class="ti ti-eye"></i></div>
+                <div class="step-label current">Reviewing</div>
+                <div class="step-date">In Progress</div>
+              </div>
+              <div class="step-node">
+                <div class="step-circle pending"><i class="ti ti-video"></i></div>
+                <div class="step-label">1st Interview</div>
+                <div class="step-date">Pending</div>
+              </div>
+              <div class="step-node">
+                <div class="step-circle pending"><i class="ti ti-brain"></i></div>
+                <div class="step-label">Assessment</div>
+                <div class="step-date">Pending</div>
+              </div>
+              <div class="step-node">
+                <div class="step-circle pending"><i class="ti ti-video"></i></div>
+                <div class="step-label">2nd Interview</div>
+                <div class="step-date">Pending</div>
+              </div>
+              <div class="step-node">
+                <div class="step-circle pending"><i class="ti ti-writing"></i></div>
+                <div class="step-label">Final Assessment</div>
+                <div class="step-date">Pending</div>
+              </div>
+              <div class="step-node">
+                <div class="step-circle pending"><i class="ti ti-file-check"></i></div>
+                <div class="step-label">Offer / Outcome</div>
+                <div class="step-date">Pending</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin: update stage -->
+        <div class="admin-only card">
+          <div class="card-title"><i class="ti ti-adjustments-horizontal"></i> Update Candidate Stage</div>
+          <div class="status-btn-row">
+            <button class="btn btn-secondary" onclick="setStatus('received')"><i class="ti ti-inbox"></i> Received</button>
+            <button class="btn btn-secondary" onclick="setStatus('reviewing')"><i class="ti ti-eye"></i> Reviewing</button>
+            <button class="btn btn-secondary" onclick="setStatus('interview1')"><i class="ti ti-video"></i> 1st Interview</button>
+            <button class="btn btn-secondary" onclick="setStatus('assessment')"><i class="ti ti-brain"></i> Assessment</button>
+            <button class="btn btn-secondary" onclick="setStatus('interview2')"><i class="ti ti-video"></i> 2nd Interview</button>
+            <button class="btn btn-secondary" onclick="setStatus('final')"><i class="ti ti-writing"></i> Final Assessment</button>
+            <button class="btn btn-secondary" onclick="setStatus('offered')"><i class="ti ti-file-check"></i> Offer</button>
+            <button class="btn btn-danger" onclick="setStatus('rejected')"><i class="ti ti-x"></i> Reject</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════
+           BOOKINGS TAB
+      ══════════════════════════════ -->
+      <section id="tab-bookings" class="tab-content">
+        <div class="tab-accent-bar" style="background:var(--accent-yellow)"></div>
+        <div class="page-header flex-between">
+          <div>
+            <h1>Interview Bookings</h1>
+            <p>Select an available slot to book your interview</p>
+          </div>
+          <button class="btn btn-primary admin-only" onclick="openAddSlotModal()">
+            <i class="ti ti-plus"></i> Add Slot
+          </button>
+        </div>
+        <div class="slots-grid" id="slotsGrid"></div>
+      </section>
+
+      <!-- ══════════════════════════════
+           STATS TAB
+      ══════════════════════════════ -->
+      <section id="tab-stats" class="tab-content">
+        <div class="tab-accent-bar" style="background:var(--accent-yellow)"></div>
+        <div class="page-header flex-between">
+          <div>
+            <h1>Recruitment Statistics</h1>
+            <p>Monthly and weekly insights for reporting</p>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <select id="statsPeriod" class="stats-period-select" onchange="renderStats()">
+              <option value="month">This Month</option>
+              <option value="week">This Week</option>
+              <option value="all">All Time</option>
+            </select>
+            <button class="btn btn-primary" onclick="downloadStatsImage()">
+              <i class="ti ti-download"></i> Download Image
+            </button>
+          </div>
+        </div>
+
+        <div id="statsPanel">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       MODALS
+  ═══════════════════════════════════════ -->
+
+  <!-- Add Job (Competency) -->
+  <div class="modal-overlay" id="addJobModal">
+    <div class="modal">
+      <h3>Add New Job</h3>
+      <div class="form-group">
+        <label>Department</label>
+        <select id="newJobDept">
+          <option>Human Capital</option>
+          <option>Marketing and Communications</option>
+          <option>Information Technology</option>
+          <option>Asset Management</option>
+          <option>Finance</option>
+          <option>Property Development and Investments</option>
+          <option>Facilities Management</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Job Title</label>
+        <input type="text" id="newJobTitle" placeholder="e.g. Senior Developer"/>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('addJobModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="addJob()"><i class="ti ti-plus"></i> Add Job</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Slot (Bookings) -->
+  <div class="modal-overlay" id="addSlotModal">
+    <div class="modal">
+      <h3>Add Interview Slot</h3>
+      <div class="form-group"><label>Date</label><input type="date" id="newSlotDate"/></div>
+      <div class="form-group"><label>Time</label><input type="time" id="newSlotTime"/></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('addSlotModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="addSlot()"><i class="ti ti-plus"></i> Add Slot</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Vacancy (Apply tab) -->
+  <div class="modal-overlay" id="addVacancyModal">
+    <div class="modal" style="width:520px">
+      <h3>Add New Vacancy</h3>
+      <div class="grid-2">
+        <div class="form-group"><label>Job Title</label><input type="text" id="vacTitle" placeholder="e.g. Financial Accountant"/></div>
+        <div class="form-group">
+          <label>Department</label>
+          <select id="vacDept">
+            <option>Human Capital</option>
+            <option>Marketing and Communications</option>
+            <option>Information Technology</option>
+            <option>Asset Management</option>
+            <option>Finance</option>
+            <option>Property Development and Investments</option>
+            <option>Facilities Management</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Location</label><input type="text" id="vacLocation" placeholder="e.g. Cape Town"/></div>
+        <div class="form-group"><label>Employment Type</label>
+          <select id="vacType">
+            <option>Full-time</option>
+            <option>Part-time</option>
+            <option>Contract</option>
+            <option>Internship</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Brief Description</label><textarea id="vacDesc" rows="3" placeholder="Brief role overview..."></textarea></div>
+      <div class="form-group">
+        <label>Closing Date</label>
+        <input type="date" id="vacClosing"/>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('addVacancyModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="addVacancy()"><i class="ti ti-plus"></i> Save Vacancy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screening Questions Modal -->
+  <div class="modal-overlay" id="screeningQModal">
+    <div class="modal" style="width:640px;max-height:85vh;overflow-y:auto">
+      <h3>Screening Questions — <span id="sqJobTitle"></span></h3>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px">
+        Add questions candidates must answer. Mark the correct answer — candidates won't see which is correct.
+      </p>
+      <div id="sqList"></div>
+      <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:8px" onclick="addScreeningQuestion()">
+        <i class="ti ti-plus"></i> Add Question
+      </button>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('screeningQModal')">Close</button>
+        <button class="btn btn-primary" onclick="saveScreeningQuestions()"><i class="ti ti-device-floppy"></i> Save Questions</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Applicant Lists Modal -->
+  <div class="modal-overlay" id="applicantListModal">
+    <div class="modal" style="width:720px;max-height:85vh;overflow-y:auto">
+      <h3>Applicant Lists — <span id="alJobTitle"></span></h3>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px">
+        Candidates are automatically sorted based on how their answers match the correct answers.
+      </p>
+      <div class="applicant-columns">
+        <div class="applicant-col good">
+          <div class="col-header"><i class="ti ti-circle-check"></i> Good Fit</div>
+          <div id="colGood"></div>
+        </div>
+        <div class="applicant-col moderate">
+          <div class="col-header"><i class="ti ti-circle-half"></i> Moderate Fit</div>
+          <div id="colModerate"></div>
+        </div>
+        <div class="applicant-col poor">
+          <div class="col-header"><i class="ti ti-circle-x"></i> Not a Good Fit</div>
+          <div id="colPoor"></div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('applicantListModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Apply to Vacancy Modal (Candidate) -->
+  <div class="modal-overlay" id="applyModal">
+    <div class="modal" style="width:580px;max-height:85vh;overflow-y:auto">
+      <h3>Apply — <span id="applyJobTitle"></span></h3>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px">
+        Please answer all screening questions honestly. Your responses are used during the shortlisting process.
+      </p>
+      <div id="applyQuestionsList"></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('applyModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitApplication()"><i class="ti ti-send"></i> Submit Application</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Competency PDF Upload Modal -->
+  <div class="modal-overlay" id="compPdfModal">
+    <div class="modal">
+      <h3>Upload Documents — <span id="compPdfJobTitle"></span></h3>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px">
+        Upload the Competency Framework PDF and/or Job Description PDF for this role.
+      </p>
+      <div class="form-group">
+        <label>Competency Framework (PDF)</label>
+        <div class="upload-zone" onclick="document.getElementById('compFrameworkInput').click()">
+          <i class="ti ti-file-text"></i>
+          <p id="compFrameworkLabel">Click to upload competency framework</p>
+          <span class="btn-upload">Browse</span>
+          <input type="file" id="compFrameworkInput" accept=".pdf" style="display:none" onchange="handleCompPdfUpload(event,'framework')"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Job Description (PDF)</label>
+        <div class="upload-zone" onclick="document.getElementById('compJdInput').click()">
+          <i class="ti ti-file-description"></i>
+          <p id="compJdLabel">Click to upload job description</p>
+          <span class="btn-upload">Browse</span>
+          <input type="file" id="compJdInput" accept=".pdf" style="display:none" onchange="handleCompPdfUpload(event,'jd')"/>
+        </div>
+      </div>
+      <div id="compUploadedFiles" style="margin-top:8px"></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('compPdfModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+</body>
+</html>
